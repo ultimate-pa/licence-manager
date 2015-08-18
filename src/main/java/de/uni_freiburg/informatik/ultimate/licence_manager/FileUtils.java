@@ -1,16 +1,19 @@
 package de.uni_freiburg.informatik.ultimate.licence_manager;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 
  * @author dietsch@informatik.uni-freiburg.de
  * 
  */
-public class FileUtils {
+public final class FileUtils {
 
 	/**
 	 * Combines a relative path with the base directory of this plugin, i.e. you
@@ -24,9 +27,10 @@ public class FileUtils {
 	 * @return A string representing the absolute path to the relative path
 	 *         based on the actual position of this package
 	 */
-	public static String getPathFromHere(String path) {
-		File here = new File(System.getProperty("user.dir"));
-		File relative = new File(here.getAbsolutePath() + File.separator + path);
+	public static String getPathFromHere(final String path) {
+		final File here = new File(System.getProperty("user.dir"));
+		final File relative = new File(here.getAbsolutePath() + File.separator
+				+ path);
 		return relative.getAbsolutePath();
 	}
 
@@ -38,12 +42,12 @@ public class FileUtils {
 	 * @param regex
 	 * @return
 	 */
-	public static Collection<File> filterFiles(Collection<File> files,
-			String regex) {
-		ArrayList<File> singleFiles = new ArrayList<File>();
+	public static Collection<File> filterFiles(final Collection<File> files,
+			final String regex) {
+		final ArrayList<File> singleFiles = new ArrayList<File>();
 
-		for (File f : files) {
-			String path = f.getAbsolutePath();
+		for (final File f : files) {
+			final String path = f.getAbsolutePath();
 			if (path.matches(regex)) {
 				singleFiles.add(f);
 			}
@@ -52,11 +56,12 @@ public class FileUtils {
 		return singleFiles;
 	}
 
-	public static List<File> getFiles(File root, String[] endings) {
-		ArrayList<File> rtr = new ArrayList<File>();
+	public static Collection<File> getFiles(final File root,
+			final String[] endings) {
+		final ArrayList<File> rtr = new ArrayList<File>();
 
 		if (root.isFile()) {
-			for (String s : endings) {
+			for (final String s : endings) {
 				if (root.getAbsolutePath().endsWith(s)) {
 					rtr.add(root);
 					break;
@@ -65,26 +70,24 @@ public class FileUtils {
 			return rtr;
 		}
 
-		File[] list = root.listFiles();
+		final File[] list = root.listFiles();
 
 		if (list == null) {
 			return rtr;
 		}
 
-		for (File f : list) {
+		for (final File f : list) {
 			if (f.isDirectory()) {
 				rtr.addAll(getFiles(f, endings));
 			} else {
-
 				if (endings == null || endings.length == 0) {
 					rtr.add(f);
 				} else {
-					for (String s : endings) {
+					for (final String s : endings) {
 						if (f.getAbsolutePath().endsWith(s)) {
 							rtr.add(f);
 							break;
 						}
-
 					}
 				}
 			}
@@ -104,7 +107,8 @@ public class FileUtils {
 	 * @param regex
 	 * @return
 	 */
-	public static Collection<File> getFilesRegex(File root, String[] regex) {
+	public static Collection<File> getFilesRegex(final File root,
+			final String[] regex) {
 		return getFilesRegex(root.getAbsolutePath(), root, regex);
 	}
 
@@ -117,35 +121,34 @@ public class FileUtils {
 	 * @param regex
 	 * @return
 	 */
-	private static Collection<File> getFilesRegex(String prefix, File root,
-			String[] regex) {
+	private static Collection<File> getFilesRegex(final String prefix,
+			final File root, final String[] regex) {
 		if (!root.getAbsolutePath().startsWith(prefix)) {
 			throw new IllegalArgumentException(
 					"prefix is no prefix of root.getAbsolutePath()");
 		}
-		ArrayList<File> rtr = new ArrayList<File>();
+		final ArrayList<File> rtr = new ArrayList<File>();
 
 		if (root.isFile()) {
 			rtr.add(root);
 			return rtr;
 		}
 
-		File[] list = root.listFiles();
+		final File[] list = root.listFiles();
 
 		if (list == null) {
 			return rtr;
 		}
 
-		for (File f : list) {
+		for (final File f : list) {
 			if (f.isDirectory()) {
 				rtr.addAll(getFilesRegex(prefix, f, regex));
 			} else {
-
 				if (regex == null || regex.length == 0) {
 					rtr.add(f);
 				} else {
-					for (String s : regex) {
-						String suffix = f.getAbsolutePath().substring(
+					for (final String s : regex) {
+						final String suffix = f.getAbsolutePath().substring(
 								prefix.length());
 						if (suffix.matches(s)) {
 							rtr.add(f);
@@ -158,16 +161,18 @@ public class FileUtils {
 		return rtr;
 	}
 
-	public static <E> Collection<E> uniformN(Collection<E> collection, int n) {
-		ArrayList<E> rtr = new ArrayList<E>(n);
+	public static <E> Collection<E> uniformN(final Collection<E> collection,
+			final int n) {
+		final ArrayList<E> rtr = new ArrayList<E>(n);
+		final int size = collection.size();
+
 		int i = 1;
-		int size = collection.size();
 		int step = 1;
 		if (n != 0) {
 			step = (int) Math.floor(((double) size) / ((double) n));
 		}
 
-		for (E elem : collection) {
+		for (final E elem : collection) {
 			if (i % step == 0) {
 				rtr.add(elem);
 			}
@@ -175,4 +180,40 @@ public class FileUtils {
 		}
 		return rtr;
 	}
+
+	/**
+	 * Load a text file contents as a <code>String<code>.
+	 * This method does not perform enconding conversions
+	 *
+	 * @param file
+	 *            The input file
+	 * @return The file contents as a <code>String</code>
+	 * @exception IOException
+	 *                IO Error
+	 */
+	public static String readFileAsString(final File file) throws IOException {
+		int len;
+		final char[] chr = new char[4096];
+		final StringBuffer buffer = new StringBuffer();
+		final FileReader reader = new FileReader(file);
+		try {
+			while ((len = reader.read(chr)) > 0) {
+				buffer.append(chr, 0, len);
+			}
+		} finally {
+			reader.close();
+		}
+		return buffer.toString();
+	}
+
+	public static void bla(final File file) throws FileNotFoundException,
+			IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			for (String line; (line = br.readLine()) != null;) {
+				// process the line.
+			}
+			// line is not visible here.
+		}
+	}
+
 }

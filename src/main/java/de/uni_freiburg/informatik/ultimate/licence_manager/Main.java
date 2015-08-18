@@ -1,9 +1,12 @@
 package de.uni_freiburg.informatik.ultimate.licence_manager;
 
 import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -13,18 +16,47 @@ import org.apache.commons.cli.ParseException;
  */
 public class Main {
 
-	public static void main(String[] args) {
-		final CommandLine cmds = parseArguments(args);
+	public static void main(final String[] args) {
+		final Options cliOptions = createOptions();
+		final CommandLine cmds = parseArguments(args, cliOptions);
 		if (cmds == null) {
 			System.exit(1);
+			return;
 		}
-		String directory = cmds.getOptionValue("d");
-		File f = new File(directory);
-		System.out.println(f.getAbsolutePath());
+
+		if (cmds.hasOption("h")) {
+			printHelp(cliOptions);
+			System.exit(0);
+			return;
+		}
+
+		if (!cmds.hasOption("d")) {
+			System.err.print("Missing parameter \"directory\"");
+			printHelp(cliOptions);
+			System.exit(1);
+			return;
+		}
+
+		if (!cmds.hasOption("n")) {
+			System.err.print("Missing parameter \"name\"");
+			printHelp(cliOptions);
+			System.exit(1);
+			return;
+		}
+
+		final String[] fileendings = new String[] { ".java", "pom.xml" };
+		final LicenceManager licenceManager = new LicenceManager(
+				cmds.getOptionValue("d"), fileendings, cmds.getOptionValue("n"));
+		try {
+			licenceManager.delete();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	private static CommandLine parseArguments(String[] args) {
-		final Options cliOptions = createOptions();
+	private static CommandLine parseArguments(final String[] args,
+			final Options cliOptions) {
 		final CommandLineParser cliParser = new DefaultParser();
 		try {
 			final CommandLine cmds = cliParser.parse(cliOptions, args);
@@ -36,17 +68,33 @@ public class Main {
 			return cmds;
 		} catch (ParseException e) {
 			System.err.println(e.getMessage());
+			printHelp(cliOptions);
 			return null;
 		}
 	}
 
 	private static Options createOptions() {
 		final Options cliOptions = new Options();
-		final Option directory = Option.builder("d").argName("dir").required()
-				.hasArg().desc("specify the directory that should be parsed")
-				.longOpt("directory").build();
 
-		cliOptions.addOption(directory);
+		cliOptions.addOption(Option.builder("d").longOpt("directory")
+				.desc("specify the directory that should be parsed")
+				.argName("dir").hasArg().build());
+
+		cliOptions.addOption(Option.builder("n").longOpt("name")
+				.desc("specify the directory that should be parsed")
+				.argName("dir").hasArg().build());
+
+		cliOptions.addOption(Option.builder("del").longOpt("delete")
+				.desc("removes all licence notices from the specified files")
+				.build());
+
+		cliOptions.addOption("h", "help", false, "prints this message");
+
 		return cliOptions;
+	}
+
+	private static void printHelp(final Options cliOptions) {
+		final HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp("licence-manager [OPTION]", "", cliOptions, "");
 	}
 }
