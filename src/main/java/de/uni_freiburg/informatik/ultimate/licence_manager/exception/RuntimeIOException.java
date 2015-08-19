@@ -1,4 +1,4 @@
-package de.uni_freiburg.informatik.ultimate.licence_manager;
+package de.uni_freiburg.informatik.ultimate.licence_manager.exception;
 
 import java.io.IOException;
 

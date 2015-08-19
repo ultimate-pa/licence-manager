@@ -1,4 +1,4 @@
-package de.uni_freiburg.informatik.ultimate.licence_manager;
+package de.uni_freiburg.informatik.ultimate.licence_manager.util;
 
 import java.io.File;
 import java.io.FileReader;

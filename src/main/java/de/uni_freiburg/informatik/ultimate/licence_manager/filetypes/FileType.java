@@ -2,7 +2,7 @@ package de.uni_freiburg.informatik.ultimate.licence_manager.filetypes;
 
 /**
  * 
- * @author dietsch@informatik.uni-freiburg.de
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
  *
  */
 public enum FileType {
