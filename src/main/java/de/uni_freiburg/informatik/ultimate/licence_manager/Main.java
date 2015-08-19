@@ -1,8 +1,6 @@
 package de.uni_freiburg.informatik.ultimate.licence_manager;
 
-import java.io.File;
 import java.io.IOException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;

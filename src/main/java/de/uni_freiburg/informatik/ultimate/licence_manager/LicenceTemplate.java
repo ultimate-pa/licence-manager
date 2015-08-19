@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,36 +23,37 @@ import java.util.stream.Stream;
 public class LicenceTemplate {
 
 	private static final String KEYWORD_DATERANGE = "@\\{daterange\\}";
+	private static final String KEYWORD_AUTHOR = "@\\{author:r\\}";
 	private final Path mTemplateFile;
-	private final String mCurrentYear;
 	private final Collection<String> mTemplate;
-	private final Pattern mFirstLinePattern;
+	private final Pattern mPatternFirstLine;
+	private final Pattern mPatternAuthor;
+
+	private String mCurrentYear;
 
 	public LicenceTemplate(File template) throws IOException {
 		mTemplateFile = template.toPath();
 		mTemplate = Files.lines(mTemplateFile).sequential()
 				.collect(Collectors.toList());
 		mCurrentYear = getCurrentYear();
-		mFirstLinePattern = getPattern(mTemplate);
+		mPatternFirstLine = getPattern(mTemplate);
+		mPatternAuthor = Pattern.compile(KEYWORD_AUTHOR);
 	}
 
 	public Stream<String> getWritableTemplate() {
-		return getWritableTemplate(getFreshStream(), null);
+		return getWritableTemplate(null);
 	}
 
-	public Stream<String> getWritableTemplate(Collection<String> authors)
-			throws IOException {
-		return getWritableTemplate(getFreshStream(), authors);
-	}
-
-	public Stream<String> getWritableTemplate(Stream<String> template,
-			Collection<String> authors) {
+	public Stream<String> getWritableTemplate(Collection<Author> authors) {
+		final Author university = getUniversity();
 		if (authors == null || authors.isEmpty()) {
-			final Stream<String> newTemplate = removeAuthorLines(template);
-			return setDateRange(newTemplate);
+			authors = Collections.singleton(university);
 		}
-
-		return null;
+		if (!authors.stream().anyMatch(a -> a.Name.equals(university.Name))) {
+			authors.add(university);
+		}
+		return setDateRangeFromKeyword(replaceAuthorLines(getFreshStream(),
+				authors));
 	}
 
 	/**
@@ -58,7 +62,7 @@ public class LicenceTemplate {
 	 * @throws IOException
 	 */
 	public boolean isFirstLine(final String line) {
-		return mFirstLinePattern.matcher(line).matches();
+		return mPatternFirstLine.matcher(line).matches();
 	}
 
 	private Pattern getPattern(Collection<String> template) {
@@ -66,27 +70,65 @@ public class LicenceTemplate {
 		if (!first.isPresent()) {
 			return null;
 		}
-		final String[] origParts = first.get().split(KEYWORD_DATERANGE);
-		final String regex = Pattern.quote(origParts[0]) + "\\d{4}( - \\d{4})?"
-				+ origParts[1];
+
+		final String regex = first.get().replaceAll("\\(", "\\\\(")
+				.replaceAll("\\)", "\\\\)")
+				.replaceAll(KEYWORD_DATERANGE, "\\\\d{4}(\\s*-\\s*\\\\d{4})?")
+				.replaceAll(KEYWORD_AUTHOR, ".*");
+
 		return Pattern.compile(regex);
 	}
 
-	private Stream<String> setDateRange(Stream<String> template) {
+	private Stream<String> setDateRangeFromKeyword(Stream<String> template) {
 		final String currentYearRegexp = "$1-" + mCurrentYear;
 		return template.map(line -> line.replaceAll(KEYWORD_DATERANGE,
 				mCurrentYear).replaceAll("(\\d\\d\\d\\d)-\\d\\d\\d\\d",
 				currentYearRegexp));
 	}
 
+	private String replaceDateRangeWithAuthorDates(String line, Author author) {
+		if (author.YearFrom != null) {
+			if (author.YearFrom.equals(getCurrentYear())) {
+				return line.replaceAll(KEYWORD_DATERANGE, author.YearFrom);
+			} else {
+				return line.replaceAll(KEYWORD_DATERANGE, author.YearFrom + "-"
+						+ getCurrentYear());
+			}
+		}
+		return line;
+	}
+
 	private Stream<String> removeAuthorLines(Stream<String> template) {
-		final Pattern pattern = Pattern.compile("@\\{author:r\\}");
-		return template.filter(line -> !pattern.matcher(line).matches());
+		return template.filter(line -> !mPatternAuthor.matcher(line).matches());
+	}
+
+	private Stream<String> replaceAuthorLines(final Stream<String> template,
+			final Collection<Author> authors) {
+		final ArrayList<String> rtr = new ArrayList<>();
+		template.forEach(line -> {
+			final Matcher matcher = mPatternAuthor.matcher(line);
+			if (!matcher.find()) {
+				rtr.add(line);
+			} else {
+				for (final Author author : authors) {
+					rtr.add(replaceDateRangeWithAuthorDates(
+							matcher.replaceAll(author.Name), author));
+				}
+			}
+		});
+		return rtr.stream();
 	}
 
 	private String getCurrentYear() {
-		return new SimpleDateFormat("yyyy").format(Calendar.getInstance()
-				.getTime());
+		if (mCurrentYear == null) {
+			mCurrentYear = new SimpleDateFormat("yyyy").format(Calendar
+					.getInstance().getTime());
+		}
+		return mCurrentYear;
+	}
+
+	private Author getUniversity() {
+		return new Author("University of Freiburg", getCurrentYear(), null);
 	}
 
 	private Stream<String> getFreshStream() {

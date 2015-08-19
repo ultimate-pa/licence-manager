@@ -1,12 +1,12 @@
 package de.uni_freiburg.informatik.ultimate.licence_manager;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * 
@@ -206,14 +206,36 @@ public final class FileUtils {
 		return buffer.toString();
 	}
 
-	public static void bla(final File file) throws FileNotFoundException,
-			IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			for (String line; (line = br.readLine()) != null;) {
-				// process the line.
-			}
-			// line is not visible here.
+	public static <T> boolean streamEquals(Stream<T> a, Stream<T> b) {
+		if (a == null && b == null) {
+			return true;
 		}
+		if (a == null || b == null) {
+			return false;
+		}
+
+		final Iterator<T> iterA = a.iterator();
+		final Iterator<T> iterB = b.iterator();
+
+		while (iterA.hasNext() && iterB.hasNext()) {
+			final T nextA = iterA.next();
+			final T nextB = iterB.next();
+
+			if (nextA != null && nextB != null) {
+				if (!nextA.equals(nextB)) {
+					return false;
+				}
+			} else if (nextA == null && nextB == null) {
+				continue;
+			}
+			return false;
+		}
+
+		if (iterA.hasNext() || iterB.hasNext()) {
+			return false;
+		}
+
+		return true;
 	}
 
 }
