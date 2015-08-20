@@ -1,6 +1,5 @@
 package de.uni_freiburg.informatik.ultimate.licence_manager;
 
-import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -45,12 +44,7 @@ public class Main {
 		final String[] fileendings = new String[] { ".java", "pom.xml" };
 		final LicenceManager licenceManager = new LicenceManager(
 				cmds.getOptionValue("d"), fileendings, cmds.getOptionValue("n"));
-		try {
-			licenceManager.delete();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		licenceManager.delete();
 	}
 
 	private static CommandLine parseArguments(final String[] args,

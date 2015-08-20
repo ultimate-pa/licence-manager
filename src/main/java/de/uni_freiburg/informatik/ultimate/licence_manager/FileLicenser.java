@@ -22,20 +22,18 @@ public class FileLicenser {
 
 	private final LicenceTemplate mTemplate;
 	private final Collection<LicencedFile> mFiles;
-	private final Consumer<LicencedFile> mWriter;
+	private final Consumer<LicencedFile> mConsumer;
 
 	public FileLicenser(final File template, final Collection<File> allFiles,
-			final Consumer<LicencedFile> writer) throws IOException {
+			final Consumer<LicencedFile> consumer) throws IOException {
 		mTemplate = new LicenceTemplate(new CachedFileStream(template));
 		mFiles = getLicencedFiles(template, allFiles);
-		mWriter = writer;
+		mConsumer = consumer;
 	}
 
-	public void writeFiles() {
+	public void consume() {
 		for (final LicencedFile file : mFiles) {
-			if (file.needsWriting()) {
-				mWriter.accept(file);
-			}
+			mConsumer.accept(file);
 		}
 	}
 

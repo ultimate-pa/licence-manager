@@ -26,20 +26,19 @@ public final class LicenceManager {
 		mTemplateName = templatename;
 	}
 
-	public void delete() throws IOException {
+	public void delete() {
+		consumeAll(getDryRunDeleteConsumer(5));
+	}
+
+	private void consumeAll(final Consumer<LicencedFile> consumer) {
 		final Collection<File> allFiles = getAllFiles();
 		final Collection<FileLicenser> licencers = getAllLicencers(allFiles,
-				fileToLicence -> {
-					System.out.println(fileToLicence);
-					fileToLicence.getNewContent().limit(5).forEach(System.out::println);
-				});
-
-		licencers.forEach(t -> t.writeFiles());
+				consumer);
+		licencers.forEach(t -> t.consume());
 	}
 
 	private Collection<FileLicenser> getAllLicencers(
-			final Collection<File> allFiles, final Consumer<LicencedFile> writer)
-			throws IOException {
+			final Collection<File> allFiles, final Consumer<LicencedFile> writer) {
 		return FileUtils
 				.getFilesRegex(mDirectory,
 						new String[] { ".*" + mTemplateName }).stream()
@@ -58,5 +57,41 @@ public final class LicenceManager {
 
 	private Collection<File> getAllFiles() {
 		return FileUtils.getFiles(mDirectory, mFileendings);
+	}
+
+	private Consumer<LicencedFile> getDryRunWriteConsumer(int limit) {
+		return fileToLicence -> {
+			System.out.print(fileToLicence);
+			if (!fileToLicence.needsWriting()) {
+				System.out.println("..... will not be changed.");
+				return;
+			}
+			System.out.println("..... licence will be changed/added. Result:");
+			if (limit > 0) {
+				fileToLicence.getNewContent().limit(limit)
+						.forEach(System.out::println);
+			} else {
+				fileToLicence.getNewContent().forEach(System.out::println);
+			}
+			System.out.println("[...]");
+		};
+	}
+
+	private Consumer<LicencedFile> getDryRunDeleteConsumer(int limit) {
+		return fileToLicence -> {
+			System.out.print(fileToLicence);
+			if (!fileToLicence.hasLicence()) {
+				System.out.println("..... will not be changed.");
+				return;
+			}
+			System.out.println("..... licence will be deleted. Result:");
+			if (limit > 0) {
+				fileToLicence.getContentWithoutLicence().limit(limit)
+						.forEach(System.out::println);
+			} else {
+				fileToLicence.getContentWithoutLicence().forEach(System.out::println);
+			}
+			System.out.println("[...]");
+		};
 	}
 }

@@ -32,12 +32,17 @@ public class LicencedFile {
 	private List<String> mNewContent;
 	private List<String> mAuthors;
 
-	public LicencedFile(final CachedFileStream file, final LicenceTemplate template,
+	public LicencedFile(final CachedFileStream file,
+			final LicenceTemplate template,
 			final IFileTypeDependentOperation operations) {
 		mFile = file;
 		mOperations = operations;
 		mTemplate = template;
 		mHasLicence = computeHasLicence(template);
+	}
+
+	public boolean hasLicence() {
+		return mHasLicence;
 	}
 
 	public boolean needsWriting() {
@@ -88,6 +93,10 @@ public class LicencedFile {
 		return mNewContent.stream();
 	}
 
+	public Stream<String> getContentWithoutLicence() {
+		return removeLicence();
+	}
+
 	/**
 	 * Assumes that there is a licence
 	 * 
@@ -135,10 +144,6 @@ public class LicencedFile {
 		return rtr;
 	}
 
-	private boolean hasLicence() {
-		return mHasLicence;
-	}
-
 	private boolean computeHasLicence(final LicenceTemplate template) {
 		return mOperations.computeHasLicence(template);
 	}
@@ -162,12 +167,12 @@ public class LicencedFile {
 	@Override
 	public String toString() {
 		return mFile.getFile().getAbsolutePath()
-				+ " -- "
-				+ (mHasLicence ? "Licenced" : "Not licenced")
+				+ " (licenced="
+				+ mHasLicence
 				+ ", type="
 				+ mOperations.getFileType()
 				+ (mAuthors == null || mAuthors.isEmpty() ? ""
-						: (" authors=" + String.join(", ", mAuthors)));
+						: (", content-authors=" + String.join(", ", mAuthors)))+")";
 	}
 
 }
