@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2015 Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
  * Copyright (C) 2015 University of Freiburg
- * Copyright (C) 2015 dietsch@informatik.uni-freiburg.de
  * 
  * This file is part of the ULTIMATE licence-manager.
  * 
@@ -251,10 +251,12 @@ public final class FileUtils {
 				if (!nextA.equals(nextB)) {
 					return false;
 				}
+
 			} else if (nextA == null && nextB == null) {
 				continue;
+			} else {
+				return false;
 			}
-			return false;
 		}
 
 		if (iterA.hasNext() || iterB.hasNext()) {
