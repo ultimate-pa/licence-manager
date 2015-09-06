@@ -31,6 +31,11 @@ import java.util.stream.Stream;
 
 import de.uni_freiburg.informatik.ultimate.licence_manager.LicenceTemplate;
 
+/**
+ * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
+ */
 public class XmlOperations implements IFileTypeDependentOperation{
 
 	private final Supplier<Stream<String>> mContentSupplier;

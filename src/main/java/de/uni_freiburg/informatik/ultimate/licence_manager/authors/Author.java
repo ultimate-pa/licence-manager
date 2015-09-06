@@ -23,8 +23,13 @@
  * licensors of the ULTIMATE licence-manager grant you additional permission 
  * to convey the resulting work.
  */
-package de.uni_freiburg.informatik.ultimate.licence_manager;
+package de.uni_freiburg.informatik.ultimate.licence_manager.authors;
 
+/**
+ * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
+ */
 public class Author {
 
 	public String Name;

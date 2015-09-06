@@ -29,14 +29,12 @@ package de.uni_freiburg.informatik.ultimate.licence_manager;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import de.uni_freiburg.informatik.ultimate.licence_manager.authors.Author;
+import de.uni_freiburg.informatik.ultimate.licence_manager.authors.Authors;
 import de.uni_freiburg.informatik.ultimate.licence_manager.filetypes.IFileTypeDependentOperation;
 import de.uni_freiburg.informatik.ultimate.licence_manager.util.CachedFileStream;
 import de.uni_freiburg.informatik.ultimate.licence_manager.util.FileUtils;
@@ -82,27 +80,11 @@ public class LicencedFile {
 	public Stream<String> getNewContent() {
 		if (mNewContent == null) {
 			final ArrayList<String> newContent = new ArrayList<String>();
+			final List<Author> authors = Authors.getAuthors(this, mOperations);
 			final Stream<String> currentContent;
-			final List<Author> authors;
 			if (hasLicence()) {
-				final List<Author> licencedAuthors = getAuthorsFromExistingLicence();
-				final List<String> commentAuthors = getAuthorNamesFromFileContent();
-				authors = Stream
-						.concat(commentAuthors
-								.stream()
-								.filter(commentAuthor -> !licencedAuthors
-										.stream()
-										.anyMatch(
-												licencedAuthor -> licencedAuthor.Name
-														.equals(commentAuthor)))
-								.map(a -> new Author(a, null, null)),
-								licencedAuthors.stream()).distinct()
-						.collect(Collectors.toList());
 				currentContent = removeLicence();
 			} else {
-				authors = getAuthorNamesFromFileContent().stream()
-						.map(a -> new Author(a, null, null))
-						.collect(Collectors.toList());
 				currentContent = mFile.getStream();
 			}
 
@@ -120,9 +102,13 @@ public class LicencedFile {
 	public Stream<String> getContentWithoutLicence() {
 		return removeLicence();
 	}
-	
-	public File getFile(){
+
+	public File getFile() {
 		return mFile.getFile();
+	}
+
+	public CachedFileStream getCachedFileStream() {
+		return mFile;
 	}
 
 	/**
@@ -142,54 +128,8 @@ public class LicencedFile {
 		return Stream.empty();
 	}
 
-	/**
-	 * Assumes that there is a licence
-	 * 
-	 * @return
-	 */
-	private List<Author> getAuthorsFromExistingLicence() {
-		final List<Author> rtr = new ArrayList<Author>();
-		final Iterator<String> iter = mFile.getStream().iterator();
-		while (iter.hasNext()) {
-			final String next = iter.next();
-
-			Pattern pattern = Pattern
-					.compile("Copyright \\(C\\) (\\d{4})\\s*-*\\s*(\\d{4})*\\s(.*)");
-			Matcher matcher = pattern.matcher(mOperations.removeComments(next));
-			if (matcher.matches()) {
-				if (matcher.groupCount() > 2) {
-					rtr.add(new Author(matcher.group(3), matcher.group(1),
-							matcher.group(2)));
-				} else {
-					rtr.add(new Author(matcher.group(2), matcher.group(1), null));
-				}
-			}
-
-			if (next.endsWith(mOperations.getLastLine())) {
-				break;
-			}
-		}
-		return rtr;
-	}
-
 	private boolean computeHasLicence(final LicenceTemplate template) {
 		return mOperations.computeHasLicence(template);
-	}
-
-	private List<String> getAuthorNamesFromFileContent() {
-		if (mAuthors == null) {
-			final Pattern pattern = Pattern.compile("\\W*@author\\s(.+)");
-			mAuthors = mFile.getStream().map((line) -> {
-				final Matcher matcher = pattern.matcher(line);
-				if (matcher.matches()) {
-					return matcher.group(1).trim();
-				}
-				return null;
-			}).filter(s -> s != null).map(s -> s.split("@author"))
-					.flatMap(Arrays::stream).map(s -> s.trim())
-					.collect(Collectors.toList());
-		}
-		return mAuthors;
 	}
 
 	@Override
@@ -200,7 +140,8 @@ public class LicencedFile {
 				+ ", type="
 				+ mOperations.getFileType()
 				+ (mAuthors == null || mAuthors.isEmpty() ? ""
-						: (", content-authors=" + String.join(", ", mAuthors)))+")";
+						: (", content-authors=" + String.join(", ", mAuthors)))
+				+ ")";
 	}
 
 }

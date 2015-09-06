@@ -27,6 +27,11 @@ package de.uni_freiburg.informatik.ultimate.licence_manager.exception;
 
 import java.io.IOException;
 
+/**
+ * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
+ */
 public class RuntimeIOException extends RuntimeException {
 
 	public RuntimeIOException(IOException e) {

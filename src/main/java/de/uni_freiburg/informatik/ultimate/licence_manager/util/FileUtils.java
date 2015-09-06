@@ -36,8 +36,8 @@ import java.util.stream.Stream;
 
 /**
  * 
- * @author dietsch@informatik.uni-freiburg.de
- * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
  */
 public final class FileUtils {
 

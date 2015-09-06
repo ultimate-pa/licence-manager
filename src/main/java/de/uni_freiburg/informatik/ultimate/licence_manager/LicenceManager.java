@@ -39,8 +39,8 @@ import de.uni_freiburg.informatik.ultimate.licence_manager.util.FileUtils;
 
 /**
  * 
- * @author dietsch@informatik.uni-freiburg.de
- * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
  */
 public final class LicenceManager {
 
@@ -60,7 +60,7 @@ public final class LicenceManager {
 	}
 
 	public void deleteDry() {
-		consumeAll(getDeleteConsumer(getLimitedPrintConsumer()));
+		consumeAll(getDeleteConsumer(getEmptyConsumer()));
 	}
 
 	public void delete() {
@@ -125,6 +125,11 @@ public final class LicenceManager {
 			System.out.println("..... licence will be deleted.");
 			consumer.accept(new FileAndStream(fileToLicence.getFile(),
 					fileToLicence.getContentWithoutLicence()));
+		};
+	}
+
+	private Consumer<FileAndStream> getEmptyConsumer() {
+		return fs -> {
 		};
 	}
 

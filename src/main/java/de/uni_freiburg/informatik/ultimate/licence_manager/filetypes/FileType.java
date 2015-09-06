@@ -32,5 +32,5 @@ package de.uni_freiburg.informatik.ultimate.licence_manager.filetypes;
  *
  */
 public enum FileType {
-	XML, JAVA, Unknown
+	XML, JAVA, UNKNOWN
 }

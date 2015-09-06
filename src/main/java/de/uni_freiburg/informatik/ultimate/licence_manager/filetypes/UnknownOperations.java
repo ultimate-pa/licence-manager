@@ -27,6 +27,11 @@ package de.uni_freiburg.informatik.ultimate.licence_manager.filetypes;
 
 import de.uni_freiburg.informatik.ultimate.licence_manager.LicenceTemplate;
 
+/**
+ * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
+ */
 public class UnknownOperations implements IFileTypeDependentOperation{
 
 	@Override
@@ -36,7 +41,7 @@ public class UnknownOperations implements IFileTypeDependentOperation{
 
 	@Override
 	public FileType getFileType() {
-		return FileType.Unknown;
+		return FileType.UNKNOWN;
 	}
 
 	@Override

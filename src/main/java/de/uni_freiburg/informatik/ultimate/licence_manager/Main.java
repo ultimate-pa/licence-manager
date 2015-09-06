@@ -35,7 +35,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 /**
- * @author dietsch@informatik.uni-freiburg.de
+ * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
  */
 public class Main {
 

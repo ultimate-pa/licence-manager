@@ -27,9 +27,7 @@
 package de.uni_freiburg.informatik.ultimate.licence_manager;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -38,12 +36,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import de.uni_freiburg.informatik.ultimate.licence_manager.authors.Author;
 import de.uni_freiburg.informatik.ultimate.licence_manager.util.CachedFileStream;
+import de.uni_freiburg.informatik.ultimate.licence_manager.util.DateUtils;
 
 /**
  * 
- * @author dietsch@informatik.uni-freiburg.de
- * 
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
+ *
  */
 public class LicenceTemplate {
 
@@ -53,11 +53,8 @@ public class LicenceTemplate {
 	private final Pattern mPatternFirstLine;
 	private final Pattern mPatternAuthor;
 
-	private String mCurrentYear;
-
 	public LicenceTemplate(CachedFileStream template) throws IOException {
 		mTemplate = template;
-		mCurrentYear = getCurrentYear();
 		mPatternFirstLine = getPattern(mTemplate.getList());
 		mPatternAuthor = Pattern.compile(KEYWORD_AUTHOR);
 	}
@@ -67,20 +64,11 @@ public class LicenceTemplate {
 	}
 
 	public Stream<String> getWritableTemplate(List<Author> authors) {
-		final Author university = getUniversity();
-		if (authors == null || authors.isEmpty()) {
-			authors = Collections.singletonList(university);
+		if (authors == null) {
+			authors = Collections.emptyList();
 		}
-		if (!authors.stream().anyMatch(a -> a.Name.equals(university.Name))) {
-			authors.add(university);
-		}
-		Collections.sort(
-				authors,
-				(a, b) -> a.Name.equals(university.Name) ? -1 : (b.Name
-						.equals(university.Name) ? 1 : a.Name
-						.compareTo(b.Name)));
-		return setDateRangeFromKeyword(replaceAuthorLines(mTemplate.getStream(),
-				authors));
+		return setDateRangeFromKeyword(replaceAuthorLines(
+				mTemplate.getStream(), authors));
 	}
 
 	/**
@@ -107,27 +95,27 @@ public class LicenceTemplate {
 	}
 
 	private Stream<String> setDateRangeFromKeyword(Stream<String> template) {
-		final String currentYearRegexp = "$1-" + mCurrentYear;
+		final String currentYearRegexp = "$1-" + DateUtils.getCurrentYear();
 		return template.map(line -> line.replaceAll(KEYWORD_DATERANGE,
-				mCurrentYear).replaceAll("(\\d\\d\\d\\d)-\\d\\d\\d\\d",
-				currentYearRegexp));
+				DateUtils.getCurrentYear()).replaceAll(
+				"(\\d\\d\\d\\d)-\\d\\d\\d\\d", currentYearRegexp));
 	}
 
 	private String replaceDateRangeWithAuthorDates(String line, Author author) {
 		if (author.YearFrom != null) {
-			if (author.YearFrom.equals(getCurrentYear())) {
+			if (author.YearFrom.equals(DateUtils.getCurrentYear())) {
 				return line.replaceAll(KEYWORD_DATERANGE, author.YearFrom);
 			} else {
 				return line.replaceAll(KEYWORD_DATERANGE, author.YearFrom + "-"
-						+ getCurrentYear());
+						+ DateUtils.getCurrentYear());
 			}
 		}
 		return line;
 	}
 
-//	private Stream<String> removeAuthorLines(Stream<String> template) {
-//		return template.filter(line -> !mPatternAuthor.matcher(line).matches());
-//	}
+	// private Stream<String> removeAuthorLines(Stream<String> template) {
+	// return template.filter(line -> !mPatternAuthor.matcher(line).matches());
+	// }
 
 	private Stream<String> replaceAuthorLines(final Stream<String> template,
 			final Collection<Author> authors) {
@@ -144,17 +132,5 @@ public class LicenceTemplate {
 			}
 		});
 		return rtr.stream();
-	}
-
-	private String getCurrentYear() {
-		if (mCurrentYear == null) {
-			mCurrentYear = new SimpleDateFormat("yyyy").format(Calendar
-					.getInstance().getTime());
-		}
-		return mCurrentYear;
-	}
-
-	private Author getUniversity() {
-		return new Author("University of Freiburg", getCurrentYear(), null);
 	}
 }

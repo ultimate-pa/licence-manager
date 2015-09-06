@@ -41,7 +41,7 @@ import de.uni_freiburg.informatik.ultimate.licence_manager.util.CachedFileStream
 
 /**
  * 
- * @author dietsch@informatik.uni-freiburg.de
+ * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
  *
  */
 public class FileLicenser {
@@ -85,7 +85,7 @@ public class FileLicenser {
 		case JAVA:
 			operation = new JavaOperations(() -> fstream.getStream());
 			break;
-		case Unknown:
+		case UNKNOWN:
 			operation = new UnknownOperations();
 			break;
 		case XML:
@@ -100,7 +100,7 @@ public class FileLicenser {
 	private FileType getFileType(File file) {
 		final String[] splitName = file.getName().split("\\.");
 		if (splitName.length <= 1) {
-			return FileType.Unknown;
+			return FileType.UNKNOWN;
 		}
 		final String ending = splitName[splitName.length - 1].toLowerCase();
 		switch (ending) {
@@ -109,7 +109,7 @@ public class FileLicenser {
 		case "java":
 			return FileType.JAVA;
 		default:
-			return FileType.Unknown;
+			return FileType.UNKNOWN;
 		}
 	}
 }
