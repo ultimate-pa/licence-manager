@@ -75,6 +75,6 @@ public class XmlOperations implements IFileTypeDependentOperation{
 
 	@Override
 	public String removeComments(String str) {
-		return mPatternComments.matcher(str).replaceAll("");
+		return mPatternComments.matcher(str).replaceAll("").trim();
 	}
 }

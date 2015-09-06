@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2015 Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
- * Copyright (C) 2002-2015 Dietsch dietsch@informatik.uni-freiburg.de
- * Copyright (C) 2000-2015 University of Freiburg
+ * Copyright (C) 2015 University of Freiburg
  * 
  * This file is part of the ULTIMATE licence-manager.
  * 
