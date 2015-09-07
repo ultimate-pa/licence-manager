@@ -41,21 +41,24 @@ import org.apache.commons.cli.ParseException;
  */
 public class Main {
 
-	private static final String OPTION_DIRECTORY = "directory";
-	private static final String OPTION_TEMPLATE_NAME = "name";
-	private static final String OPTION_DRY_RUN = "dry-run";
-	private static final String OPTION_HELP = "help";
-	private static final String OPTION_DELETE = "delete";
+	public static final String OPTION_DIRECTORY = "directory";
+	public static final String OPTION_TEMPLATE_NAME = "name";
+	public static final String OPTION_DRY_RUN = "dry-run";
+	public static final String OPTION_HELP = "help";
+	public static final String OPTION_DELETE = "delete";
+	public static final String OPTION_DISABLE_SVN = "disable-svn";
+
+	private static CommandLine sOptions;
 
 	public static void main(final String[] args) {
 		final Options cliOptions = createOptions();
-		final CommandLine cmds = parseArguments(args, cliOptions);
-		if (cmds == null) {
+		sOptions = parseArguments(args, cliOptions);
+		if (sOptions == null) {
 			System.exit(1);
 			return;
 		}
 
-		if (cmds.hasOption(OPTION_HELP)) {
+		if (hasOption(OPTION_HELP)) {
 			printHelp(cliOptions);
 			System.exit(0);
 			return;
@@ -65,7 +68,7 @@ public class Main {
 		final String[] requiredOptions = new String[] { OPTION_DIRECTORY,
 				OPTION_TEMPLATE_NAME };
 		for (final String requiredOption : requiredOptions) {
-			if (!cmds.hasOption(requiredOption)) {
+			if (!hasOption(requiredOption)) {
 				System.err
 						.print("Missing parameter \"" + requiredOption + "\"");
 				printHelp(cliOptions);
@@ -78,18 +81,18 @@ public class Main {
 
 			final String[] fileendings = new String[] { ".java", "pom.xml" };
 			final LicenceManager licenceManager = new LicenceManager(
-					cmds.getOptionValue(OPTION_DIRECTORY), fileendings,
-					cmds.getOptionValue(OPTION_TEMPLATE_NAME));
+					getOptionValue(OPTION_DIRECTORY), fileendings,
+					getOptionValue(OPTION_TEMPLATE_NAME));
 
-			if (cmds.hasOption(OPTION_DRY_RUN)) {
+			if (hasOption(OPTION_DRY_RUN)) {
 				System.out.println("This is a dry run:");
-				if (cmds.hasOption(OPTION_DELETE)) {
+				if (hasOption(OPTION_DELETE)) {
 					licenceManager.deleteDry();
 				} else {
 					licenceManager.writeDry();
 				}
 			} else {
-				if (cmds.hasOption(OPTION_DELETE)) {
+				if (hasOption(OPTION_DELETE)) {
 					licenceManager.delete();
 				} else {
 					licenceManager.write();
@@ -103,6 +106,20 @@ public class Main {
 			return;
 		}
 
+	}
+
+	public static boolean hasOption(final String optionName) {
+		if (sOptions == null) {
+			return false;
+		}
+		return sOptions.hasOption(optionName);
+	}
+
+	public static String getOptionValue(final String optionName) {
+		if (sOptions == null) {
+			return null;
+		}
+		return sOptions.getOptionValue(optionName);
 	}
 
 	private static CommandLine parseArguments(final String[] args,
@@ -126,13 +143,18 @@ public class Main {
 	private static Options createOptions() {
 		final Options cliOptions = new Options();
 
+		cliOptions.addOption(Option.builder().longOpt(OPTION_DISABLE_SVN)
+				.desc("do not try to use SVN blame to get author information")
+				.build());
+
+
 		cliOptions.addOption(Option.builder("d").longOpt(OPTION_DIRECTORY)
 				.desc("specify the directory that should be parsed")
 				.argName("dir").hasArg().build());
 
 		cliOptions.addOption(Option.builder("n").longOpt(OPTION_TEMPLATE_NAME)
-				.desc("specify the licence template file")
-				.argName("dir").hasArg().build());
+				.desc("specify the licence template file").argName("dir")
+				.hasArg().build());
 
 		cliOptions.addOption(Option.builder().longOpt(OPTION_DELETE)
 				.desc("delete all licence texts").build());

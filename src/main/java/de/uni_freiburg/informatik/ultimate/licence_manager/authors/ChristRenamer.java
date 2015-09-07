@@ -35,22 +35,19 @@ import java.util.Set;
  * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
  *
  */
-public class DietschRenamer implements IAuthorRenamer {
+public class ChristRenamer implements IAuthorRenamer {
 
-	private static final String sUsedName = "Daniel Dietsch (dietsch@informatik.uni-freiburg.de)";
+	private static final String sUsedName = "Jürgen Christ";
 
 	private static final Set<String> sKnownNames = new HashSet<String>(
-			Arrays.asList(new String[] {
-					"Daniel Dietsch (dietsch@informatik.uni-freiburg.de)",
-					"dietsch", "firefox", "dietsch@informatik.uni-freiburg.de" }));
+			Arrays.asList(new String[] { "christj" }));
 
 	@Override
 	public boolean shouldRename(Author author) {
 		if (author.Name.equals(sUsedName)) {
 			return false;
 		}
-		return sKnownNames.contains(author.Name)
-				|| author.Name.toLowerCase().contains("dietsch");
+		return sKnownNames.contains(author.Name);
 	}
 
 	@Override

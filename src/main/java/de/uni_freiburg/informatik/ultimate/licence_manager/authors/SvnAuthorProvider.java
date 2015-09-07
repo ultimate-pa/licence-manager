@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import de.uni_freiburg.informatik.ultimate.licence_manager.LicencedFile;
+import de.uni_freiburg.informatik.ultimate.licence_manager.Main;
 import de.uni_freiburg.informatik.ultimate.licence_manager.filetypes.FileType;
 import de.uni_freiburg.informatik.ultimate.licence_manager.filetypes.IFileTypeDependentOperation;
 import de.uni_freiburg.informatik.ultimate.licence_manager.util.DateUtils;
@@ -61,7 +62,7 @@ import de.uni_freiburg.informatik.ultimate.licence_manager.util.ProcessUtils.Str
  */
 public class SvnAuthorProvider implements IAuthorProvider {
 
-	private static final boolean ENABLED = isSvnAvailable();
+	private static final boolean SVN_AVAILABLE = isSvnAvailable();
 	private static final float THRESHOLD_PERCENTAGE = 10;
 	private static String sSvnVersion;
 
@@ -73,7 +74,8 @@ public class SvnAuthorProvider implements IAuthorProvider {
 
 	@Override
 	public boolean isUsable(LicencedFile file, FileType fileType) {
-		return ENABLED && fileType != FileType.UNKNOWN
+		return SVN_AVAILABLE && !Main.hasOption(Main.OPTION_DISABLE_SVN)
+				&& fileType != FileType.UNKNOWN
 				&& isUnderVersionControl(file.getFile().getAbsolutePath());
 	}
 

@@ -35,14 +35,12 @@ import java.util.Set;
  * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
  *
  */
-public class DietschRenamer implements IAuthorRenamer {
+public class BuchholdRenamer implements IAuthorRenamer {
 
-	private static final String sUsedName = "Daniel Dietsch (dietsch@informatik.uni-freiburg.de)";
+	private static final String sUsedName = "Björn Buchhold";
 
 	private static final Set<String> sKnownNames = new HashSet<String>(
-			Arrays.asList(new String[] {
-					"Daniel Dietsch (dietsch@informatik.uni-freiburg.de)",
-					"dietsch", "firefox", "dietsch@informatik.uni-freiburg.de" }));
+			Arrays.asList(new String[] { "buchholb" }));
 
 	@Override
 	public boolean shouldRename(Author author) {
@@ -50,7 +48,7 @@ public class DietschRenamer implements IAuthorRenamer {
 			return false;
 		}
 		return sKnownNames.contains(author.Name)
-				|| author.Name.toLowerCase().contains("dietsch");
+				|| author.Name.toLowerCase().contains("buchhold");
 	}
 
 	@Override
