@@ -95,11 +95,10 @@ public class Main {
 					licenceManager.write();
 				}
 			}
-
 			System.exit(0);
 			return;
 		} catch (Exception ex) {
-			System.err.println("Unexpected error: " + ex.getMessage());
+			System.err.println(ex.getMessage());
 			System.exit(1);
 			return;
 		}
@@ -132,7 +131,7 @@ public class Main {
 				.argName("dir").hasArg().build());
 
 		cliOptions.addOption(Option.builder("n").longOpt(OPTION_TEMPLATE_NAME)
-				.desc("specify the directory that should be parsed")
+				.desc("specify the licence template file")
 				.argName("dir").hasArg().build());
 
 		cliOptions.addOption(Option.builder().longOpt(OPTION_DELETE)

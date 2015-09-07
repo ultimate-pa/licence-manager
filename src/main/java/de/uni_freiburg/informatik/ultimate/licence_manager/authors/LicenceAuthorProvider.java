@@ -72,7 +72,7 @@ public class LicenceAuthorProvider implements IAuthorProvider {
 	}
 
 	@Override
-	public boolean isUsable(FileType fileType) {
+	public boolean isUsable(LicencedFile file, FileType fileType) {
 		return fileType != FileType.UNKNOWN;
 	}
 

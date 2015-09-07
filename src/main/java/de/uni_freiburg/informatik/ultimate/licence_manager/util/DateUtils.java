@@ -26,6 +26,7 @@
  */
 package de.uni_freiburg.informatik.ultimate.licence_manager.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -44,6 +45,45 @@ public class DateUtils {
 					.getInstance().getTime());
 		}
 		return sCurrentYear;
+	}
+
+	public static String getYear(String date, String dateformat)
+			throws ParseException {
+		final SimpleDateFormat formatter = new SimpleDateFormat(dateformat);
+		final SimpleDateFormat year = new SimpleDateFormat("yyyy");
+		return year.format(formatter.parse(date));
+	}
+
+	public static String min(String a, String b) {
+		if (a == null && b == null) {
+			return null;
+		}
+		if (a != null && b == null) {
+			return a;
+		}
+		if (b != null && a == null) {
+			return b;
+		}
+		if (Integer.valueOf(a) < Integer.valueOf(b)) {
+			return a;
+		}
+		return b;
+	}
+
+	public static String max(String a, String b) {
+		if (a == null && b == null) {
+			return null;
+		}
+		if (a != null && b == null) {
+			return a;
+		}
+		if (b != null && a == null) {
+			return b;
+		}
+		if (Integer.valueOf(a) > Integer.valueOf(b)) {
+			return a;
+		}
+		return b;
 	}
 
 }

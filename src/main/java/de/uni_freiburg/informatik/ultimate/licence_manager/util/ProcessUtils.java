@@ -24,35 +24,63 @@
  * licensors of the ULTIMATE licence-manager grant you additional permission 
  * to convey the resulting work.
  */
-package de.uni_freiburg.informatik.ultimate.licence_manager.authors;
+package de.uni_freiburg.informatik.ultimate.licence_manager.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Scanner;
 
-import de.uni_freiburg.informatik.ultimate.licence_manager.LicencedFile;
-import de.uni_freiburg.informatik.ultimate.licence_manager.filetypes.FileType;
-import de.uni_freiburg.informatik.ultimate.licence_manager.filetypes.IFileTypeDependentOperation;
-import de.uni_freiburg.informatik.ultimate.licence_manager.util.DateUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * 
  * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
  *
  */
-public class StaticAuthorProvider implements IAuthorProvider {
+public class ProcessUtils {
 
-	@Override
-	public List<Author> getAuthors(LicencedFile file,
-			IFileTypeDependentOperation operation) {
-		final List<Author> rtr = new ArrayList<Author>();
-		rtr.add(new Author("University of Freiburg",
-				DateUtils.getCurrentYear(), null));
-		return rtr;
+	public static void inheritIO(final InputStream src, final PrintStream dest) {
+		new Thread(new Runnable() {
+			public void run() {
+				final Scanner sc = new Scanner(src);
+				while (sc.hasNextLine()) {
+					dest.println(sc.nextLine());
+				}
+				sc.close();
+			}
+		}).start();
 	}
 
-	@Override
-	public boolean isUsable(LicencedFile file, FileType fileType) {
-		return fileType != FileType.UNKNOWN;
+	public static StreamGobbler attachGobbler(final InputStream src) {
+		final StreamGobbler gobbler = new StreamGobbler(src);
+		gobbler.start();
+		return gobbler;
 	}
 
+	public static class StreamGobbler extends Thread {
+		private InputStream mInput;
+		private byte[] mOutput;
+
+		private StreamGobbler(final InputStream is) {
+			mInput = is;
+		}
+
+		public InputStream getFreshStream() {
+			return new ByteArrayInputStream(mOutput);
+		}
+
+		@Override
+		public void run() {
+			try {
+				final ByteArrayOutputStream output = new ByteArrayOutputStream();
+				IOUtils.copy(mInput, output);
+				mOutput = output.toByteArray();
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+	}
 }

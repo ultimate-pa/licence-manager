@@ -75,6 +75,10 @@ public final class LicenceManager {
 		final Collection<File> allFiles = getAllFiles();
 		final Collection<FileLicenser> licencers = getAllLicencers(allFiles,
 				consumer);
+		if (licencers == null || licencers.isEmpty()) {
+			throw new RuntimeException("No template file " + mTemplateName
+					+ " found");
+		}
 		licencers.forEach(t -> t.consume());
 	}
 

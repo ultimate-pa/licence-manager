@@ -38,6 +38,7 @@ import org.reflections.Reflections;
 
 import de.uni_freiburg.informatik.ultimate.licence_manager.LicencedFile;
 import de.uni_freiburg.informatik.ultimate.licence_manager.filetypes.IFileTypeDependentOperation;
+import de.uni_freiburg.informatik.ultimate.licence_manager.util.DateUtils;
 
 /**
  * 
@@ -69,7 +70,7 @@ public class Authors {
 			final IFileTypeDependentOperation operation) {
 		final List<Author> rtr = new ArrayList<Author>();
 		for (final IAuthorProvider provider : mProviders) {
-			if (provider.isUsable(operation.getFileType())) {
+			if (provider.isUsable(file, operation.getFileType())) {
 				rtr.addAll(provider.getAuthors(file, operation));
 			}
 		}
@@ -78,7 +79,9 @@ public class Authors {
 
 	private List<Author> mergeAuthors(final List<Author> authors) {
 
-		final Map<String, List<Author>> mapWithDuplicates = authors.stream().map(this::rename)
+		final Map<String, List<Author>> mapWithDuplicates = authors
+				.stream()
+				.map(this::rename)
 				.collect(
 						Collectors.toMap(
 								a -> a.Name,
@@ -108,43 +111,11 @@ public class Authors {
 
 		for (final Author author : authors) {
 			rtr.Name = author.Name;
-			rtr.YearFrom = min(rtr.YearFrom, author.YearFrom);
-			rtr.YearTo = max(rtr.YearTo, author.YearTo);
+			rtr.YearFrom = DateUtils.min(rtr.YearFrom, author.YearFrom);
+			rtr.YearTo = DateUtils.max(rtr.YearTo, author.YearTo);
 		}
 
 		return rtr;
-	}
-
-	private String min(String a, String b) {
-		if (a == null && b == null) {
-			return null;
-		}
-		if (a != null && b == null) {
-			return a;
-		}
-		if (b != null && a == null) {
-			return b;
-		}
-		if (Integer.valueOf(a) < Integer.valueOf(b)) {
-			return a;
-		}
-		return b;
-	}
-
-	private String max(String a, String b) {
-		if (a == null && b == null) {
-			return null;
-		}
-		if (a != null && b == null) {
-			return a;
-		}
-		if (b != null && a == null) {
-			return b;
-		}
-		if (Integer.valueOf(a) > Integer.valueOf(b)) {
-			return a;
-		}
-		return b;
 	}
 
 	private <T> List<T> createInstances(Class<? extends T> clazz)

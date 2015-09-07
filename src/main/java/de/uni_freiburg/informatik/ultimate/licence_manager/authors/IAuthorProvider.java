@@ -42,5 +42,5 @@ public interface IAuthorProvider {
 	List<Author> getAuthors(LicencedFile file,
 			IFileTypeDependentOperation operation);
 
-	boolean isUsable(FileType fileType);
+	boolean isUsable(LicencedFile file, FileType fileType);
 }
