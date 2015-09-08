@@ -26,6 +26,10 @@
  */
 package de.uni_freiburg.informatik.ultimate.licence_manager.authors;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 
  * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
@@ -35,12 +39,15 @@ public class ErmisRenamer implements IAuthorRenamer {
 
 	private static final String sUsedName = "Evren Ermis";
 
+	private static final Set<String> sKnownNames = new HashSet<String>(
+			Arrays.asList(new String[] { "ermis" }));
+
 	@Override
 	public boolean shouldRename(Author author) {
 		if (author.Name.equals(sUsedName)) {
 			return false;
 		}
-		return author.Name.toLowerCase().contains("ermis");
+		return sKnownNames.contains(author.Name);
 	}
 
 	@Override

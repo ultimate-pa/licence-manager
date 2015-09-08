@@ -51,7 +51,6 @@ public class LicencedFile {
 	private final IFileTypeDependentOperation mOperations;
 
 	private List<String> mNewContent;
-	private List<String> mAuthors;
 
 	public LicencedFile(final CachedFileStream file,
 			final LicenceTemplate template,
@@ -138,8 +137,6 @@ public class LicencedFile {
 				+ mHasLicence
 				+ ", type="
 				+ mOperations.getFileType()
-				+ (mAuthors == null || mAuthors.isEmpty() ? ""
-						: (", content-authors=" + String.join(", ", mAuthors)))
 				+ ")";
 	}
 

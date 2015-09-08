@@ -33,6 +33,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import de.uni_freiburg.informatik.ultimate.licence_manager.authors.Authors;
 
 /**
  * 
@@ -98,6 +99,9 @@ public class Main {
 					licenceManager.write();
 				}
 			}
+			System.out.println();
+			System.out.println("Found the following authors:");
+			Authors.getCollectedAuthorNames().forEach(System.out::println);
 			System.exit(0);
 			return;
 		} catch (Exception ex) {
@@ -134,7 +138,9 @@ public class Main {
 			}
 			return cmds;
 		} catch (ParseException e) {
-			System.err.println(e.getMessage());
+			System.err
+					.println("Exception while parsing command line arguments: "
+							+ e.getMessage());
 			printHelp(cliOptions);
 			return null;
 		}
@@ -146,7 +152,6 @@ public class Main {
 		cliOptions.addOption(Option.builder().longOpt(OPTION_DISABLE_SVN)
 				.desc("do not try to use SVN blame to get author information")
 				.build());
-
 
 		cliOptions.addOption(Option.builder("d").longOpt(OPTION_DIRECTORY)
 				.desc("specify the directory that should be parsed")

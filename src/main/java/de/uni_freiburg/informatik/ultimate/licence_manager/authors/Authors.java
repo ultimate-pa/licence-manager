@@ -26,11 +26,12 @@
  */
 package de.uni_freiburg.informatik.ultimate.licence_manager.authors;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,6 +49,7 @@ import de.uni_freiburg.informatik.ultimate.licence_manager.util.DateUtils;
 public class Authors {
 
 	private final static Authors sInstance = new Authors();
+	private final static Set<String> sCollectedAuthorNames = new HashSet<String>();
 
 	private final List<IAuthorProvider> mProviders;
 	private final List<IAuthorRenamer> mRenamers;
@@ -61,9 +63,15 @@ public class Authors {
 		}
 	}
 
+	public static Set<String> getCollectedAuthorNames() {
+		return sCollectedAuthorNames;
+	}
+
 	public static List<Author> getAuthors(final LicencedFile file,
 			final IFileTypeDependentOperation operation) {
-		return sInstance.getAuthorsInternal(file, operation);
+		final List<Author> rtr = sInstance.getAuthorsInternal(file, operation);
+		rtr.stream().forEach(a -> sCollectedAuthorNames.add(a.Name));
+		return rtr;
 	}
 
 	private List<Author> getAuthorsInternal(final LicencedFile file,

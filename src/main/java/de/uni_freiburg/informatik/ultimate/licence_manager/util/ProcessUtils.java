@@ -79,7 +79,8 @@ public class ProcessUtils {
 				IOUtils.copy(mInput, output);
 				mOutput = output.toByteArray();
 			} catch (IOException e) {
-				System.err.println(e.getMessage());
+				System.err.println("Exception while gobbling the stream:"
+						+ e.getMessage());
 			}
 		}
 	}

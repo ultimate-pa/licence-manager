@@ -35,12 +35,14 @@ import java.util.Set;
  * @author Daniel Dietsch (dietsch@informatik.uni-freiburg.de)
  *
  */
-public class ChristRenamer implements IAuthorRenamer {
+public class SchillingRenamer implements IAuthorRenamer {
 
-	private static final String sUsedName = "Jürgen Christ (christj@informatik.uni-freiburg.de)";
+	private static final String sUsedName = "Christian Schilling (schillic@informatik.uni-freiburg.de)";
 
 	private static final Set<String> sKnownNames = new HashSet<String>(
-			Arrays.asList(new String[] { "christj", "Jürgen Christ","Juergen Christ" }));
+			Arrays.asList(new String[] { "schillic",
+					"schillic@informatik.uni-freiburg.de",
+					"Christian Schilling", "Christian" }));
 
 	@Override
 	public boolean shouldRename(Author author) {
